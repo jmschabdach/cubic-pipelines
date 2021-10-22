@@ -4,10 +4,10 @@ This folder contains scripts for running `recon-all` using FreeSurfer or Infant 
 
 ### Software Requirements
 
-- FreeSurfer 5.30/6.XX/7.1.1
+- FreeSurfer 5.3.0/6.0.0/7.1.1
 - Infant FreeSurfer (2021-01-12 update)
 
-FreeSurfer 5.3 and 6.X are installed as modules on CUBIC as of 2021-10-22. FreeSurfer 7.1.1 must be installed separately and loaded using a bit of bash/module management trickery.
+FreeSurfer 5.3.0 and 6.0.0 are installed as modules on CUBIC as of 2021-10-22. FreeSurfer 7.1.1 must be installed separately and loaded using a bit of bash/module management trickery.
 
 
 The code for Infant FreeSurfer can be requested [here](https://surfer.nmr.mgh.harvard.edu/fswiki/infantFS). There is something related to FSL licenses that could make install via Docker tricky.
@@ -54,3 +54,5 @@ The output of the heudiconv and CuBIDS process lives in the `rawdata` directory.
 Point the main script `mpr_job_submitter.sh` at a BIDS `rawdata` directory as described in the previous section and give it the numeric version of FreeSurfer to use.
 
 `mpr_job_submitter.sh /path/to/bids/rawdata/ "7.1.1"`
+
+Note: the `recon-all` job runs a preprocessing step on the images before starting recon-all. This step uses a script (preprocWashUACPCAlignment.sh) from Damien Fair's group at Washington University St. Louis to align the image to the MNI atlas and resample the image to have 1 mm voxels. Currently, no preprocessing is performed on the `infant_recon_all` jobs. 
