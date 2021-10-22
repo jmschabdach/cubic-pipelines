@@ -17,6 +17,7 @@ SUBJ=$3       # identifier string for the subject (sub-XXXX)
 FSLVERSION=$4 # string
 
 BASE=/cbica/projects/bgdimagecentral/Projects/mpr_analysis
+SUBJECTS_DIR=$OUTDIR
 
 source ~/miniconda3/etc/profile.d/conda.sh
 
@@ -52,13 +53,18 @@ fi
 echo "Scratch directory: "
 
 # Run the preprocessing
-INTERIM=$OUTDIR/preprocessed_mpr.nii.gz
+SCRATCH=${OUTDIR/reconall/preprocWashUACPCAlignment}
+echo "SCRATCH: $SCRATCH"
+INTERIM=$SCRATCH/preprocessed_mpr.nii.gz
 # do I need to copy the input image into the working directory?
-cp $INPUT $OUTDIR
-bash $BASE/preprocWashUACPCAlignment.sh --workingdir=$OUTDIR --in=$INPUT --out=$INTERIM --omat="premat.mat"
+mkdir -p $SCRATCH
+cp $INPUT $SCRATCH
+bash $BASE/preprocWashUACPCAlignment.sh --workingdir=$SCRATCH --in=$INPUT --out=$INTERIM --omat="premat.mat"
 
 # Run recon-all 
-recon-all -subject $SUBJ -i $INTERIM -all -target $SUBJECTS_DIR/fsaverage
+recon-all -sd $OUTDIR -subject $SUBJ -i $INTERIM -all -target /cbica/projects/bgdimagecentral/fsaverage
  
-# # Job ended, move stuff back
-# cp -r $SUBJECTS_DIR/$SUBJ/* $OUTDIR
+# Job ended, clean up
+rm $OUTDIR/fsaverage
+mv $OUTDIR/$SUBJ/* $OUTDIR
+rm -r $OUTDIR/$SUBJ

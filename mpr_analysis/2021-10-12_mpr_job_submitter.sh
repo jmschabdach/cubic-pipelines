@@ -22,37 +22,60 @@ for subj in $DATADIR/sub-* ; do
  
                 # if the age is less than 2 years
                 if [ $ageNum -lt 731 ] ; then
-                    # start the infant freesurfer job
-                    OUTDIR="$(dirname $DATADIR)/mpr_ifs_reconall/$SUBJID/$(basename $session)/$(basename -s .nii.gz $fn)"
-#                    qsub $BASE/jobInfantFreesurferReconAll.sh $fn $ageNum $FSVERSION
-                # else if the age is less than 3 years
-                elif [ $ageNum -lt 1096 ] ; then
-                    # start both an infant freesurfer job and a regular freesurfer job
-                    OUTDIR="$(dirname $DATADIR)/mpr_ifs_reconall/$SUBJID/$(basename $session)/$(basename -s .nii.gz $fn)"
-#                    qsub $BASE/jobInfantFreesurferReconAll.sh $fn $ageNum $FSVERSION
-
-                    # start a regular freesurfer job 
-                    OUTDIR="${fn/rawdata/derivatives/mpr_fs_reconall_$FSVERSION}"
-                    OUTDIR="$(dirname $OUTDIR)/$(basename -s .nii.gz $OUTDIR)"
+                    echo 
+                    OUTDIR="${fn/rawdata/derivatives/mpr_ifs_reconall_$FSVERSION}"
+                    OUTDIR=${OUTDIR%%.nii.gz}
+                    echo $OUTDIR
 
                     if [ ! -d $OUTDIR ] ; then
                         mkdir -p $OUTDIR
                     fi
 
-                    echo "$OUTDIR $fn $SUBJID $FSVERSION"
+                    ### start the infant freesurfer job
+                    qsub $BASE/jobInfantFreesurferReconAll.sh $fn $OUTDIR $ageNum $FSVERSION
+                # else if the age is less than 3 years
+                elif [ $ageNum -lt 1096 ] ; then
+                    ### start both an infant freesurfer job 
+                    echo 
+                    OUTDIR="${fn/rawdata/derivatives/mpr_ifs_reconall_$FSVERSION}"
+                    OUTDIR=${OUTDIR%%.nii.gz}
+                    echo $OUTDIR
+
+                    if [ ! -d $OUTDIR ] ; then
+                        mkdir -p $OUTDIR
+                    fi
+
+                    qsub $BASE/jobInfantFreesurferReconAll.sh $fn $ageNum $FSVERSION
+
+                    ### start a regular freesurfer job 
+                    echo 
+                    OUTDIR="${fn/rawdata/derivatives/mpr_fs_reconall_$FSVERSION}"
+                    OUTDIR=${OUTDIR%%.nii.gz}
+                    echo $OUTDIR
+
+                    if [ ! -d $OUTDIR ] ; then
+                        mkdir -p $OUTDIR
+                    fi
+                    echo $OUTDIR
+
                     qsub $BASE/jobFreesurferReconAll.sh $OUTDIR $fn $SUBJID $FSVERSION
 
                 # else age > 3 years
                 else 
-                    # start a regular freesurfer job 
+                    ### start a regular freesurfer job 
+                    echo 
                     OUTDIR="${fn/rawdata/derivatives/mpr_fs_reconall_$FSVERSION}"
-                    OUTDIR="$(dirname $OUTDIR)/$(basename -s .nii.gz $OUTDIR)"
+                    echo $OUTDIR
+                    OUTDIR=${OUTDIR%%.nii.gz}
+                    echo $OUTDIR
+                    # OUTDIR="${fn/rawdata/derivatives/mpr_fs_reconall_$FSVERSION}$SUBJID/$(basename $session)/$(basename -s .nii.gz $fn)"
+                    # echo $OUTDIR
 
                     if [ ! -d $OUTDIR ] ; then
                         mkdir -p $OUTDIR
                     fi
 
-                    echo "$OUTDIR $fn $SUBJID $FSVERSION"
+                    #echo "$OUTDIR $fn $SUBJID $FSVERSION"
                     qsub $BASE/jobFreesurferReconAll.sh $OUTDIR $fn $SUBJID $FSVERSION
                 fi
             fi
