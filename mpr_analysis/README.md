@@ -56,3 +56,5 @@ Point the main script `mpr_job_submitter.sh` at a BIDS `rawdata` directory as de
 `mpr_job_submitter.sh /path/to/bids/rawdata/ "7.1.1"`
 
 Note: the `recon-all` job runs a preprocessing step on the images before starting recon-all. This step uses a script (preprocWashUACPCAlignment.sh) from Damien Fair's group at Washington University St. Louis to align the image to the MNI atlas and resample the image to have 1 mm voxels. Currently, no preprocessing is performed on the `infant_recon_all` jobs. 
+
+Note: the `infant_recon_all` job currently only supports FSL version 7.1.1 and doesn't actually do anything with the FSLVERSION parameter passed to it.
