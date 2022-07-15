@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # The name of the job
-#$ -N ifs-test-job-woo
+#$ -N ifs-reconall
 #
 # Join stdout and stderrL:
 #$ -j y
@@ -9,22 +9,14 @@
 # Set the amount of memory being requested
 #$ -l h_vmem=32G
 
-# Parse the arguments passed to the script as variables
-INPUT=$1        # The input file to run infant_recon_all on
-OUTDIR=$2       # The directory where the output of infant_recon_all should live
-AGE=$3          # The age in days
-FSL_VERSION=$4  # A string representing the FSL version "X.X.X"
+INPUT=$1
+OUTDIR=$2
+AGE=$3
+FSL_VERSION=$4
 
-# Print the inputs (remnant from debugging)
-echo "Inputs to job:"
-echo "Input image: $INPUT"
-echo "Output directory: $OUTDIR"
-echo "Age in days: $AGE"
-echo "Freesurfer version: $FSL_VERSION"
-echo
-
-# Unload the FSL 5.3.0 module that's active by default
+# Set up the environment
 module unload freesurfer/5.3.0
+
 
 # Set up environment variable and directory structure IFS is expecting
 SUBJECTS_DIR=$(dirname $OUTDIR)
@@ -40,22 +32,28 @@ cp $INPUT $OUTDIR/mprage.nii.gz
 AGE_MONTHS=$( awk -v var1=$AGE -v daysPerYear="365.25" -v monthsPerYear="12" 'BEGIN { print ( int(( var1 / daysPerYear ) * monthsPerYear ) ) }')
 echo "Age in months: $AGE_MONTHS"
 
-# Set up the Freesurfer 7.1.1 environment variables
-FREESURFER_HOME=/cbica/projects/bgdimagecentral/freesurfer-7.1.1/
-export FREESURFER_HOME
+# Do stuff to deal with the different FS versions
+if [[ $FSL_VERSION == *"7.1.0"* ]] ; then
+    # Set up the Freesurfer environment variables
+    export FREESURFER_HOME=/cbica/projects/bgdimagecentral/.software/freesurfer-7.1.1/
+    INFANT_FREESURFER=/cbica/projects/bgdimagecentral/.software/freesurfer-infant-7
 
-PATH="$PATH:$FREESURFER_HOME:/cbica/projects/bgdimagecentral/miniconda/bin/perl"
-export PATH
+elif [[ $FSL_VERSION == *"6.0.0"* ]] ; then
+    #module load freesurfer/6.0.0
+    #export FREESURFER_HOME=/cbica/projects/bgdimagecentral/.software/freesurfer-6.0.0/
+    export FREESURFER_HOME=/cbica/projects/bgdimagecentral/.software/freesurfer-infant-6
+    INFANT_FREESURFER=/cbica/projects/bgdimagecentral/.software/freesurfer-infant-6
+fi
 
-# Set up Infant FreeSurfer
-INFANT_FREESURFER=/cbica/projects/bgdimagecentral/freesurfer-infant/
 bash $INFANT_FREESURFER/SetUpFreeSurfer.sh
 source $INFANT_FREESURFER/FreeSurferEnv.sh
+PATH="$PATH:$FREESURFER_HOME:/cbica/projects/bgdimagecentral/.software/miniconda/bin/perl"
+export PATH
 export SUBJECTS_DIR
 
-# Run infant_recon_all
+# Run recon-all
 $INFANT_FREESURFER/bin/infant_recon_all --s $SUBJ --age $AGE_MONTHS --stats --ccseg
 
 # Remove the mprage.nii.gz file from the output directory
-rm $OUTDIR/mprage.nii.gz
+# rm $OUTDIR/mprage.nii.gz
 
