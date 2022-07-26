@@ -8,6 +8,9 @@
 #
 # Set the amount of memory being requested.
 #$ -l h_vmem=8G
+#
+# Set the max runtime to 96 hours
+#$ -l h_rt=96:00:00
 
 #source $FREESURFER_HOME/SetUpFreeSurfer.sh
 
@@ -19,7 +22,7 @@ FSLVERSION=$4 # string
 BASE=/cbica/projects/bgdimagecentral/Projects/mpr_analysis_jenna
 SUBJECTS_DIR=$OUTDIR
 
-source /cbica/projects/bgdimagecentral/.software/miniconda3/etc/profile.d/conda.sh
+source /cbica/projects/bgdimagecentral/miniconda3/etc/profile.d/conda.sh
 
 echo "Inputs:"
 echo "OUTDIR: $OUTDIR"

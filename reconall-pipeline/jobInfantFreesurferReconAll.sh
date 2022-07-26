@@ -8,6 +8,9 @@
 #
 # Set the amount of memory being requested
 #$ -l h_vmem=32G
+#
+# Set the max runtime to 96 hours
+#$ -l h_rt=96:00:00
 
 INPUT=$1
 OUTDIR=$2
@@ -47,7 +50,7 @@ fi
 
 bash $INFANT_FREESURFER/SetUpFreeSurfer.sh
 source $INFANT_FREESURFER/FreeSurferEnv.sh
-PATH="$PATH:$FREESURFER_HOME:/cbica/projects/bgdimagecentral/.software/miniconda/bin/perl"
+PATH="$PATH:$FREESURFER_HOME:/cbica/projects/bgdimagecentral/miniconda/bin/perl"
 export PATH
 export SUBJECTS_DIR
 
