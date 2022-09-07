@@ -1,34 +1,26 @@
-#!/bin/sh
+#! /bin/bash
 #
 # The name of the job
-#$ -N synthseg
+#$ -N synthseg 
 #
 # Join stdout and stderrL:
 #$ -j y
 #
-# Set the amount of memory being requested.
-#$ -l h_vmem=16G
+# Set the amount of memory being requested
+#$ -l h_vmem=64G
 
-FN=$1
+# Required to set up the environment for SynthSeg to run correctly
+source /cbica/projects/bgdimagecentral/miniconda3/etc/profile.d/conda.sh
+source activate synthseg-2.0
 
-source ~/.software/miniconda3/etc/profile.d/conda.sh
+INFN=$1
+OUTDIR=$2
 
-# Prep the environment
-module unload freesurfer/5.3
+OUTFN=$OUTDIR/synthseg_segmentations.nii.gz
+VOLSCSV=$OUTDIR/volumes.csv
+QCCSV=$OUTDIR/qc_scores.csv
+POSTFN=$OUTDIR/posterior_probability_maps.nii.gz
 
-export FREESURFER_HOME=/cbica/projects/bgdimagecentral/.software/freesurfer-dev-2022-04-11
-source $FREESURFER_HOME/SetUpFreeSurfer.sh
+time python $SYNTHSEG_HOME/scripts/commands/SynthSeg_predict.py --i $INFN --o $OUTDIR --vol $VOLSCSV --qc $QCCSV --post $POSTFN --robust
 
-conda activate synthseg
-
-
-# Prep the filename
-
-OUT=${FN/rawdata/derivatives/mpr_fs_synthsegplus}
-OUT=${OUT/.nii.gz//synthseg_volume.nii.gz}
-METRICS=${OUT/synthseg_volume.nii.gz/metrics}
-
-
-echo "mri_synthseg --i $FN --o $OUT --vol $METRICS --robust"
-
-mri_synthseg --i $FN --o $OUT --vol $METRICS --robust
+echo "Job has finished running."
